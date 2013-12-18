@@ -39,6 +39,7 @@
          <dependency>
             <groupId>fi.vm.sade.generic</groupId>
             <artifactId>generic-common</artifactId>
+            <version>${generic.version}</version>
         </dependency>
 		
 		<!--- logging -->
