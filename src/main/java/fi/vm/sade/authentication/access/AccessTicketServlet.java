@@ -16,11 +16,8 @@
 
 package fi.vm.sade.authentication.access;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -33,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fi.vm.sade.authentication.cas.CasClient;
+import fi.vm.sade.properties.OphProperties;
 
  
 /**
@@ -50,38 +48,14 @@ public class AccessTicketServlet extends HttpServlet {
 	private static final long serialVersionUID = 258379666492210097L;
 
 	private static final Logger logger = LoggerFactory.getLogger(AccessTicketServlet.class);
-
-	private static final String PROPERTY_FILE = "access-ticket.properties";
 	
 	private String casURL;
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		
-        Properties prop = new Properties();
-
-        try {
-        	String userHome = System.getProperty("user.home");
-        	
-        	logger.debug("Using user.home: "+userHome);
-        	
-        	File file = new File(userHome+"/oph-configuration/"+PROPERTY_FILE);
-        	if(file.exists()){
-        		logger.debug("Using properties file: {}", file);
-        		prop.load(new FileInputStream(file));
-    		}else{
-        		//load a properties file from class path, inside static method
-    			logger.debug("Using properties file from classpath: {}", AccessTicketServlet.class.getClassLoader().getResource(PROPERTY_FILE));
-                prop.load(AccessTicketServlet.class.getClassLoader().getResourceAsStream(PROPERTY_FILE));	
-        	}
-                        
-            casURL = prop.getProperty("cas-url");
-
-        } catch (IOException ex) {
-            new ServletException("Faild to load properties from '"+PROPERTY_FILE+"'.", ex);
-        }
-
+                OphProperties ophProperties = new ServiceAccessOphProperties();
+                casURL = ophProperties.url("cas.v1.tickets");
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -111,8 +85,7 @@ public class AccessTicketServlet extends HttpServlet {
         logger.debug("casURL: {}",casURL);
         logger.debug("user: {}",user);
         logger.debug("serviceUrl: {}",serviceUrl);
-        
-        String serviceTicket = CasClient.getTicket(casURL+"/v1/tickets", 
+        String serviceTicket = CasClient.getTicket(casURL,
 															user, pass, 
 															serviceUrl + "/j_spring_cas_security_check");
         
