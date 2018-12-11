@@ -42,7 +42,7 @@ import fi.vm.sade.properties.OphProperties;
  * @author Riku Karjalainen <riku.karjalainen@proactum.fi>
  *
  */
-@WebServlet(urlPatterns={"/accessTicket"} )
+@WebServlet(urlPatterns={"/accessTicket"}, loadOnStartup = 1)
 public class AccessTicketServlet extends HttpServlet {
            
 	private static final long serialVersionUID = 258379666492210097L;
@@ -56,6 +56,7 @@ public class AccessTicketServlet extends HttpServlet {
 		super.init(config);
                 OphProperties ophProperties = new ServiceAccessOphProperties();
                 casURL = ophProperties.url("cas.v1.tickets");
+		logger.info("Using cas {}", casURL);
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
